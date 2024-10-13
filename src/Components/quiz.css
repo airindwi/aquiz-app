@@ -205,6 +205,20 @@
   font-size: 18px;
 }
 
+.summary-container {
+  text-align: center;
+}
+
+.restart-button{
+  background-color: #516592;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }

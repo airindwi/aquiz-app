@@ -4,7 +4,6 @@ import './quiz.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-// Komponen Navbar untuk menampilkan nama kuis dan waktu tersisa
 const QuizNavbar = ({ quizName, durationInMinutes }) => {
   const [timeLeft, setTimeLeft] = useState(durationInMinutes * 60);
 
@@ -34,7 +33,6 @@ const QuizNavbar = ({ quizName, durationInMinutes }) => {
   );
 };
 
-// Komponen Loading untuk menampilkan saat data sedang dimuat
 const Loading = () => (
   <div className="loading-container">
     <div className="loading-card">
@@ -44,7 +42,14 @@ const Loading = () => (
   </div>
 );
 
-// Komponen utama Quiz
+const QuizSummary = ({ correctAnswers, totalQuestions, onRestart }) => (
+  <div className="summary-container">
+    <h2>Quiz Completed!</h2>
+    <p>You answered {correctAnswers} out of {totalQuestions} questions correctly.</p>
+    <button className="restart-button" onClick={onRestart}>Restart Quiz</button>
+  </div>
+);
+
 const Quiz = () => {
   const quizName = 'General Knowledge Quiz';
   const durationInMinutes = 120;
@@ -54,8 +59,9 @@ const Quiz = () => {
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userAnswers, setUserAnswers] = useState([]);
+  const [quizFinished, setQuizFinished] = useState(false);
 
-  // Fetch data kuis dari API
   useEffect(() => {
     const fetchQuizData = async () => {
       try {
@@ -79,27 +85,47 @@ const Quiz = () => {
     fetchQuizData();
   }, []);
 
-  // Menangani pemilihan jawaban
   const handleAnswerSelection = (optionLabel) => {
     setSelectedAnswer(optionLabel);
     const isCorrect = optionLabel === quizData[currentQuestionIndex]?.correctAnswer;
     setIsAnswerCorrect(isCorrect);
+    setUserAnswers((prevAnswers) => [...prevAnswers, optionLabel]); // Simpan jawaban pengguna
   };
 
-  // Menangani pergantian pertanyaan
   const handleNextQuestion = () => {
     if (currentQuestionIndex < quizData.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer('');
       setIsAnswerCorrect(null);
     } else {
-      alert('You have completed the quiz!'); // Implement submission logic here
+      setQuizFinished(true);
     }
   };
 
-  // Jika loading, tampilkan komponen Loading
+  const handleRestartQuiz = () => {
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer('');
+    setIsAnswerCorrect(null);
+    setUserAnswers([]);
+    setQuizFinished(false);
+  };
+
+  const correctAnswersCount = userAnswers.reduce((count, answer, index) => {
+    return count + (answer === quizData[index]?.correctAnswer ? 1 : 0);
+  }, 0);
+
   if (loading) {
     return <Loading />;
+  }
+
+  if (quizFinished) {
+    return (
+      <QuizSummary
+        correctAnswers={correctAnswersCount}
+        totalQuestions={quizData.length}
+        onRestart={handleRestartQuiz}
+      />
+    );
   }
 
   return (
@@ -114,6 +140,7 @@ const Quiz = () => {
               <li 
                 key={option.value}
                 className={`option-item ${selectedAnswer === option.label ? (isAnswerCorrect ? 'correct' : 'incorrect') : ''}`}>
+
                 <label className="option-label">
                   <input
                     type="radio"
