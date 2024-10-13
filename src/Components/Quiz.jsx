@@ -89,7 +89,7 @@ const Quiz = () => {
     setSelectedAnswer(optionLabel);
     const isCorrect = optionLabel === quizData[currentQuestionIndex]?.correctAnswer;
     setIsAnswerCorrect(isCorrect);
-    setUserAnswers((prevAnswers) => [...prevAnswers, optionLabel]); // Simpan jawaban pengguna
+    setUserAnswers((prevAnswers) => [...prevAnswers, optionLabel]); 
   };
 
   const handleNextQuestion = () => {
